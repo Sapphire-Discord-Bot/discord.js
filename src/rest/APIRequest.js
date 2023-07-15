@@ -75,15 +75,17 @@ class APIRequest {
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.client.options.restRequestTimeout).unref();
-    let fResult = await fetch(url, {
-      method: this.method,
-      headers,
-      agent,
-      body,
-      signal: controller.signal,
-    }).finally(() => clearTimeout(timeout));
-    reqLogger.write(`\n${new Date().toLocaleString()} | ${this.method} (${fResult?.status}): ${url}`);
-    return fResult;
+    return new Promise(async (resolve, reject) => {
+     let fResult = await fetch(url, {
+       method: this.method,
+       headers,
+       agent,
+       body,
+       signal: controller.signal,
+     }).catch((err) => reject(err)).finally(() => clearTimeout(timeout));
+     reqLogger.write(`\n${new Date().toLocaleString()} | ${this.method} (${fResult?.status}): ${url}`);
+     resolve(fResult);
+    });
   }
 }
 
