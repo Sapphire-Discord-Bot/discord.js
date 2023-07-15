@@ -84,7 +84,9 @@ class APIRequest {
        body,
        signal: controller.signal,
      }).catch((err) => reject(err)).finally(() => clearTimeout(timeout));
-     reqLogger.write(`\n${new Date().toLocaleString()} | ${this.method} (${fResult?.status}): ${url} | ${simplifyStack(this._stack)}`);
+     if (!`${fResult?.status}`.startsWith("2")) {
+      reqLogger.write(`\n${new Date().toLocaleString()} | ${this.method} (${fResult?.status}): ${url} | ${simplifyStack(this._stack)}`);
+     }
      resolve(fResult);
     });
   }
