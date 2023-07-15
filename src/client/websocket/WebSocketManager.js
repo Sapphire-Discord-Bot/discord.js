@@ -254,7 +254,8 @@ class WebSocketManager extends EventEmitter {
     // If we have more shards, add a 5s delay
     if (this.shardQueue.size) {
       this.debug(`Shard Queue Size: ${this.shardQueue.size}; continuing in 5 seconds...`);
-      await sleep(5_000);
+      console.log(`Shard Queue Size: ${this.shardQueue.size}; continuing now...`)
+      //await sleep(5_000); Remove 5s delay because max_concurrency is 16 and a cluster has 8 shards.
       return this.createShards();
     }
 
