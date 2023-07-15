@@ -15,6 +15,7 @@ let agent = null;
 
 class APIRequest {
   constructor(rest, method, path, options) {
+    this._stack = new Error().stack;
     this.rest = rest;
     this.client = rest.client;
     this.method = method;
@@ -83,10 +84,18 @@ class APIRequest {
        body,
        signal: controller.signal,
      }).catch((err) => reject(err)).finally(() => clearTimeout(timeout));
-     reqLogger.write(`\n${new Date().toLocaleString()} | ${this.method} (${fResult?.status}): ${url}`);
+     reqLogger.write(`\n${new Date().toLocaleString()} | ${this.method} (${fResult?.status}): ${url} | ${simplifyStack(this._stack)}`);
      resolve(fResult);
     });
   }
 }
 
 module.exports = APIRequest;
+
+function simplifyStack(stack) {
+ let stackSplit = stack.split("\n");
+ stackSplit.shift();
+ stackSplit.shift();
+ stackSplit.shift();
+ return stackSplit.map(s => s.match(/\((.+)\)/)?.[1] || "/").join(" > ");
+}
