@@ -6,6 +6,11 @@ const FormData = require('form-data');
 const fetch = require('node-fetch');
 const { UserAgent } = require('../util/Constants');
 
+const fs = require('fs')
+const reqLogger = fs.createWriteStream('httprequests_2.txt', {
+  flags: 'a' // 'a' means appending (old data will be preserved)
+});
+
 let agent = null;
 
 class APIRequest {
@@ -70,13 +75,15 @@ class APIRequest {
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.client.options.restRequestTimeout).unref();
-    return fetch(url, {
+    let fResult = await fetch(url, {
       method: this.method,
       headers,
       agent,
       body,
       signal: controller.signal,
     }).finally(() => clearTimeout(timeout));
+    reqLogger.write(`\n${new Date().toLocaleString()} | ${this.method} (${fResult?.status}): ${url}`);
+    return fResult;
   }
 }
 
