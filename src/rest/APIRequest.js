@@ -6,16 +6,10 @@ const FormData = require('form-data');
 const fetch = require('node-fetch');
 const { UserAgent } = require('../util/Constants');
 
-const fs = require('fs')
-const reqLogger = fs.createWriteStream('httprequests_2.txt', {
-  flags: 'a' // 'a' means appending (old data will be preserved)
-});
-
 let agent = null;
 
 class APIRequest {
   constructor(rest, method, path, options) {
-    this._stack = new Error().stack;
     this.rest = rest;
     this.client = rest.client;
     this.method = method;
@@ -76,28 +70,14 @@ class APIRequest {
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.client.options.restRequestTimeout).unref();
-    return new Promise(async (resolve, reject) => {
-     let fResult = await fetch(url, {
-       method: this.method,
-       headers,
-       agent,
-       body,
-       signal: controller.signal,
-     }).catch((err) => reject(err)).finally(() => clearTimeout(timeout));
-     if (!`${fResult?.status}`.startsWith("2")) {
-      reqLogger.write(`\n${new Date().toLocaleString()} | ${this.method} (${fResult?.status}): ${url} | ${simplifyStack(this._stack)}`);
-     }
-     resolve(fResult);
-    });
+    return fetch(url, {
+      method: this.method,
+      headers,
+      agent,
+      body,
+      signal: controller.signal,
+    }).finally(() => clearTimeout(timeout));
   }
 }
 
 module.exports = APIRequest;
-
-function simplifyStack(stack) {
- let stackSplit = stack.split("\n");
- stackSplit.shift();
- stackSplit.shift();
- stackSplit.shift();
- return stackSplit.map(s => s.match(/\((.+)\)/)?.[1] || "/").join(" > ");
-}
