@@ -188,6 +188,12 @@ class Activity {
     this.url = data.url ?? null;
 
     /**
+     * The activity's state
+     * @type {string}
+     */
+    this.state = data.state ?? null;
+
+    /**
      * Details about the activity
      * @type {?string}
      */
