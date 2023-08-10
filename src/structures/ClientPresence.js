@@ -55,6 +55,7 @@ class ClientPresence extends Presence {
           type: typeof activity.type === 'number' ? activity.type : ActivityTypes[activity.type],
           name: activity.name,
           url: activity.url,
+          state: activity.state,
         });
       }
     } else if (!activities && (status || afk || since) && this.activities.length) {
@@ -63,6 +64,7 @@ class ClientPresence extends Presence {
           name: a.name,
           type: ActivityTypes[a.type],
           url: a.url ?? undefined,
+          state: a.state ?? undefined,
         })),
       );
     }
